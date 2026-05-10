@@ -52,10 +52,13 @@ const ShortcutRow: FC<ShortcutRowProps> = ({ description, shortcut, onConfigure 
 
 export const Shortcuts: FC = () => {
     const [shortcuts, setShortcuts] = useState<Shortcut[]>([]);
+    const supportsShortcuts = BUILD_TARGET !== 'safari' && browser.commands?.getAll;
 
     useEffect(() => {
-        browser.commands
-            .getAll()
+        if (!supportsShortcuts) return;
+
+        browser
+            .commands!.getAll()
             .then((commands) =>
                 setShortcuts(
                     resolveShortcuts(commands, {
@@ -65,7 +68,9 @@ export const Shortcuts: FC = () => {
                 )
             )
             .catch(noop);
-    }, []);
+    }, [supportsShortcuts]);
+
+    if (!supportsShortcuts) return null;
 
     const openShortcutsPage =
         BUILD_TARGET !== 'firefox'
