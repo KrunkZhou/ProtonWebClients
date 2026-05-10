@@ -76,7 +76,7 @@ if (typeof browser !== 'undefined') {
         browser.runtime.onUpdateAvailable.addListener(context.service.activation.onUpdateAvailable);
     }
 
-    if (BUILD_TARGET !== 'safari') {
+    if (BUILD_TARGET !== 'safari' && browser.commands?.onCommand) {
         browser.commands.onCommand.addListener(handleExtensionCommand);
     }
 

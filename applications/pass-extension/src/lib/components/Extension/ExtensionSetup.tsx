@@ -12,7 +12,10 @@ import { createUseContext } from '@proton/pass/hooks/useContextFactory';
 import type { MaybeNull } from '@proton/pass/types/utils/index';
 import { registerLoggerEffect } from '@proton/pass/utils/logger';
 
+import { ExtensionError } from './ExtensionError';
+
 type Props = { children: ReactNode; recycle?: boolean };
+const CONTEXT_SETUP_TIMEOUT = 5_000;
 
 export const ExtensionReactContext = createContext<MaybeNull<ExtensionContextType>>(null);
 export const useExtensionContext = createUseContext(ExtensionReactContext);
@@ -22,10 +25,13 @@ export const useExtensionContext = createUseContext(ExtensionReactContext);
  * from the global `ExtensionContext.get()` */
 export const ExtensionSetup: FC<Props> = ({ children }) => {
     const [ready, setReady] = useState(false);
+    const [failed, setFailed] = useState(false);
     const ctx = useRef<MaybeNull<ExtensionContextType>>(null);
     const { endpoint } = usePassCore();
 
     useEffect(() => {
+        let mounted = true;
+
         registerLoggerEffect((...logs) =>
             sendMessage(
                 resolveMessageFactory(endpoint)({
@@ -36,18 +42,36 @@ export const ExtensionSetup: FC<Props> = ({ children }) => {
         );
 
         const setup = async () => {
-            ctx.current = await setupExtensionContext({
-                endpoint,
-                /** Reload the app on port disconnection. SW re-registration
-                 * timeout is handled by the `reloadManager.appReload` timeout. */
-                onDisconnect: reloadManager.appReload,
+            const timeout = new Promise<never>((_, reject) => {
+                window.setTimeout(
+                    () => reject(new Error(`Extension context setup timed out for ${endpoint}`)),
+                    CONTEXT_SETUP_TIMEOUT
+                );
             });
 
-            setReady(true);
+            ctx.current = await Promise.race([
+                setupExtensionContext({
+                    endpoint,
+                    /** Reload the app on port disconnection. SW re-registration
+                     * timeout is handled by the `reloadManager.appReload` timeout. */
+                    onDisconnect: reloadManager.appReload,
+                }),
+                timeout,
+            ]);
+
+            if (mounted) setReady(true);
         };
 
-        void setup();
+        void setup().catch(() => {
+            if (mounted) setFailed(true);
+        });
+
+        return () => {
+            mounted = false;
+        };
     }, []);
+
+    if (failed) return <ExtensionError />;
 
     return (
         <ExtensionReactContext.Provider value={ctx.current}>
