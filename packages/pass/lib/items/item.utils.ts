@@ -168,8 +168,10 @@ export const intoLoginItemPreview = (item: ItemRevision<'login'>): LoginItemPrev
 export const intoIdentityItemPreview = (item: ItemRevision<'identity'>): IdentityItemPreview => ({
     itemId: item.itemId,
     shareId: item.shareId,
+    email: item.data.content.email,
     name: item.data.metadata.name,
     fullName: item.data.content.fullName,
+    workEmail: item.data.content.workEmail,
 });
 
 export const intoCCItemPreview = (item: ItemRevision<'creditCard'>): CCItemPreview => ({

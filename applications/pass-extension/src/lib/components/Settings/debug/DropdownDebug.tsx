@@ -113,6 +113,7 @@ export const DropdownDebug: FC = () => {
                             frameOrigin: '',
                             prefix: 'secret',
                             aliasCreationDisabled: false,
+                            identityEmails: [],
                             fieldId: '',
                             formId: '',
                         }}

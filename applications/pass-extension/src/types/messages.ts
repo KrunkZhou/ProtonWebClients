@@ -404,7 +404,10 @@ type WorkerMessageResponseMap = {
     [WorkerMessageType.AUTOFILL_LOGIN_QUERY]: AutofillLoginResult;
     [WorkerMessageType.AUTOFILL_OTP_CHECK]: { shouldPrompt: false } | ({ shouldPrompt: true } & LoginItemPreview);
     [WorkerMessageType.AUTOFILL_SEQUENCE]: AutofillResult;
-    [WorkerMessageType.AUTOSUGGEST_ALIAS]: { aliasCreationDisabled: boolean };
+    [WorkerMessageType.AUTOSUGGEST_ALIAS]: {
+        aliasCreationDisabled: boolean;
+        identityEmails: { email: string; itemId: string; title: string }[];
+    };
     [WorkerMessageType.AUTOSUGGEST_PASSWORD]: PasswordAutosuggestOptions;
     [WorkerMessageType.CLIENT_INIT]: ClientInitResult;
     [WorkerMessageType.CLIPBOARD_OFFSCREEN_READ]: { content: string };

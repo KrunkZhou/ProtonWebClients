@@ -1,4 +1,4 @@
-import { type FC, useEffect, useState } from 'react';
+import { type FC, useEffect, useMemo, useState } from 'react';
 
 import type { DropdownAction } from 'proton-pass-extension/app/content/constants.runtime';
 import { DropdownHeader } from 'proton-pass-extension/app/content/services/inline/dropdown/app/components/DropdownHeader';
@@ -33,7 +33,13 @@ const isValidAliasOptions = (options: AliasState['aliasOptions']): options is Al
 
 const getInitialLoadingText = (): string => c('Info').t`Generating alias...`;
 
-export const AutosuggestEmail: FC<Props> = ({ action, aliasCreationDisabled, prefix, ...payload }) => {
+export const AutosuggestEmail: FC<Props> = ({
+    action,
+    aliasCreationDisabled,
+    identityEmails: identities = [],
+    prefix,
+    ...payload
+}) => {
     const controller = useIFrameAppController();
     const { onTelemetry } = usePassCore();
 
@@ -123,6 +129,15 @@ export const AutosuggestEmail: FC<Props> = ({ action, aliasCreationDisabled, pre
     }, [error]);
 
     const validAliasOptions = isValidAliasOptions(aliasOptions);
+    const identityEmails = useMemo(() => {
+        const seen = new Set<string>(userEmail ? [userEmail] : []);
+
+        return identities.filter(({ email }) => {
+            if (seen.has(email)) return false;
+            seen.add(email);
+            return true;
+        });
+    }, [identities, userEmail]);
 
     return (
         <>
@@ -153,6 +168,15 @@ export const AutosuggestEmail: FC<Props> = ({ action, aliasCreationDisabled, pre
                     onClick={() => autofillEmail(userEmail)}
                 />
             )}
+            {identityEmails.map(({ itemId, title, email }) => (
+                <ListItem
+                    key={`${itemId}:${email}`}
+                    title={title}
+                    subTitle={email}
+                    icon={{ type: 'icon', icon: 'card-identity' }}
+                    onClick={() => autofillEmail(email)}
+                />
+            ))}
             {!aliasCreationDisabled && (
                 <ListItem
                     title={

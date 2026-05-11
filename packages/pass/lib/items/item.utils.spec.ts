@@ -411,6 +411,8 @@ describe('Item utils', () => {
     describe('intoIdentityItemPreview', () => {
         const identity = itemBuilder('identity');
         identity.get('content').set('fullName', 'John Doe');
+        identity.get('content').set('email', 'john@example.com');
+        identity.get('content').set('workEmail', 'john@work.example.com');
         identity.get('metadata').set('name', 'My Identity');
 
         const item = createTestItem('identity', {
@@ -424,7 +426,9 @@ describe('Item utils', () => {
                 itemId: 'item1',
                 shareId: 'share1',
                 name: 'My Identity',
+                email: 'john@example.com',
                 fullName: 'John Doe',
+                workEmail: 'john@work.example.com',
             });
         });
     });

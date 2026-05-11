@@ -6,6 +6,7 @@ import { c } from 'ttag';
 import { filesFormInitializer } from '@proton/pass/lib/file-attachments/helpers';
 import { requestAliasOptions } from '@proton/pass/store/actions/creators/alias';
 import { itemCreate } from '@proton/pass/store/actions/creators/item';
+import { selectAutofillIdentityCandidates } from '@proton/pass/store/selectors/autofill';
 import { selectAliasLimits } from '@proton/pass/store/selectors/limits';
 import { selectOrganizationSettings } from '@proton/pass/store/selectors/organization';
 import { selectMostRecentVaultShareID } from '@proton/pass/store/selectors/vaults';
@@ -22,7 +23,14 @@ export const createAliasService = () => {
             const state = ctx.service.store.getState();
             const orgSettings = selectOrganizationSettings(state);
             const aliasCreationDisabled = orgSettings?.AliasCreateMode === OrganizationAliasCreateMode.NOBODY;
-            return { aliasCreationDisabled };
+            const identityEmails = selectAutofillIdentityCandidates()(state).flatMap(({ data, itemId }) =>
+                [
+                    { email: data.content.email, itemId, title: data.metadata.name },
+                    { email: data.content.workEmail, itemId, title: data.metadata.name },
+                ].filter((item): item is { email: string; itemId: string; title: string } => Boolean(item.email.trim()))
+            );
+
+            return { aliasCreationDisabled, identityEmails };
         })
     );
 

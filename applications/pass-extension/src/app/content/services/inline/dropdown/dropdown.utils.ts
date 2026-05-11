@@ -144,6 +144,7 @@ export const intoDropdownAction = withContext<(request: DropdownRequest) => Prom
                         action,
                         prefix: deriveAliasPrefix(tabUrl.displayName!),
                         aliasCreationDisabled: res.aliasCreationDisabled,
+                        identityEmails: res.identityEmails,
                         ...base,
                     };
                 });
