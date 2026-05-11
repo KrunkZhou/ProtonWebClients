@@ -177,6 +177,11 @@ const config: Configuration = {
 
         ...(BUILD_TARGET === 'safari'
             ? {
+                  'account-bridge': {
+                      /* Safari account page bridge for custom extension IDs */
+                      import: disableBrowserTrap('./src/app/content/safari/account-bridge.ts'),
+                      layer: 'injection',
+                  },
                   fork: {
                       /* Safari fork fallback */
                       import: disableBrowserTrap('./src/app/content/safari/index.ts'),
@@ -345,6 +350,7 @@ const config: Configuration = {
                                 break;
                             case 'safari':
                                 manifest.content_scripts[1].matches = [`https://account.${API_ENV}/*`];
+                                manifest.content_scripts[2].matches = [`https://account.${API_ENV}/*`];
                                 manifest.externally_connectable.matches = [
                                     `https://account.${API_ENV}/*`,
                                     `https://pass.${API_ENV}/*`,

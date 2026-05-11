@@ -16,8 +16,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "1FEA7CF02BE8E86900EF2ED2"
-               BuildableName = "Proton Pass for Safari.app"
-               BlueprintName = "Proton Pass for Safari"
+               BuildableName = "Open Pass for Safari.app"
+               BlueprintName = "Open Pass for Safari"
                ReferencedContainer = "container:Proton Pass.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -45,8 +45,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "1FEA7CF02BE8E86900EF2ED2"
-            BuildableName = "Proton Pass for Safari.app"
-            BlueprintName = "Proton Pass for Safari"
+            BuildableName = "Open Pass for Safari.app"
+            BlueprintName = "Open Pass for Safari"
             ReferencedContainer = "container:Proton Pass.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -62,8 +62,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "1FEA7CF02BE8E86900EF2ED2"
-            BuildableName = "Proton Pass for Safari.app"
-            BlueprintName = "Proton Pass for Safari"
+            BuildableName = "Open Pass for Safari.app"
+            BlueprintName = "Open Pass for Safari"
             ReferencedContainer = "container:Proton Pass.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>

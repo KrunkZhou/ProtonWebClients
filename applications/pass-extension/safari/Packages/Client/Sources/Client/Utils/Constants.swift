@@ -24,10 +24,10 @@ import Foundation
 public let kSharedUserDefaults = UserDefaults(suiteName: Constants.appGroup)
 
 public enum Constants: Sendable {
-    public static let teamId = "2SB5Z68H26"
-    public static let bundleId = "me.proton.pass.catalyst"
-    public static let extensionBundleId = "me.proton.pass.catalyst.safari-extension"
-    public static let appGroup = "group.me.proton.pass.catalyst"
+    public static let teamId = "3TBA3Z94F9"
+    public static let bundleId = "cn.krunk.pass.catalyst"
+    public static let extensionBundleId = "cn.krunk.pass.catalyst.safari-extension"
+    public static let appGroup = "group.cn.krunk.pass.catalyst"
     public static let keychainAccessGroup = "\(teamId).\(appGroup)"
     public static let appStoreUrl = "itms-apps://itunes.apple.com/app/id6502835663"
     public static let environmentKey = "ENVIRONMENT"

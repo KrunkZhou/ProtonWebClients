@@ -1,8 +1,8 @@
 PROJECT = "Proton Pass.xcodeproj"
 BUILD_PATH = "build"
-ENV["FASTLANE_ITC_TEAM_NAME"] = "Proton AG"
-ENV["FASTLANE_APP_IDENTIFIER"] = "me.proton.pass.catalyst"
-KEYCHAIN_NAME = "me.proton.pass.catalyst"
+ENV["FASTLANE_ITC_TEAM_NAME"] = ENV.fetch("FASTLANE_ITC_TEAM_NAME", "")
+ENV["FASTLANE_APP_IDENTIFIER"] = "cn.krunk.pass.catalyst"
+KEYCHAIN_NAME = "cn.krunk.pass.catalyst"
 KEYCHAIN_PATH = File.expand_path("~/Library/Keychains/#{KEYCHAIN_NAME}-db")
 
 def delete_keychain_if_exists
@@ -97,7 +97,7 @@ lane :build_and_upload do
   `security list-keychains -d user -s #{search_list.map { |k| %Q("#{k}") }.join(' ')}`
   UI.message("Keychain search list: #{`security list-keychains -d user`}")
 
-  version_number = get_version_number(xcodeproj: PROJECT, target: "Proton Pass for Safari")
+  version_number = get_version_number(xcodeproj: PROJECT, target: "Open Pass for Safari")
   build_number = get_build_number(xcodeproj: PROJECT)
   build_name = "#{version_number} (#{build_number})"
   output_directory = "#{BUILD_PATH}/#{build_name}"
@@ -110,12 +110,12 @@ lane :build_and_upload do
     path: PROJECT,
     team_id: "2SB5Z68H26",
     code_sign_identity: "Apple Distribution",
-    targets: ["Proton Pass for Safari", "Safari Extension"]
+    targets: ["Open Pass for Safari", "Safari Extension"]
   )
 
   update_project_provisioning(
     xcodeproj: PROJECT,
-    target_filter: "Proton Pass for Safari",
+    target_filter: "Open Pass for Safari",
     profile: "securefiles/Proton_Pass_Catalyst.provisionprofile"
   )
 
@@ -128,7 +128,7 @@ lane :build_and_upload do
   # Make the build
   build_mac_app(
         project: PROJECT,
-        scheme: "Proton Pass",
+        scheme: "Open Pass",
         configuration: "Release",
         clean: true,
         output_directory: output_directory,
@@ -145,8 +145,8 @@ lane :build_and_upload do
           signingStyle: "manual",
           installerSigningCertificate: "3rd Party Mac Developer Installer: Proton AG (2SB5Z68H26)",
           provisioningProfiles: {
-            "me.proton.pass.catalyst" => "Proton Pass Catalyst",
-            "me.proton.pass.catalyst.safari-extension" => "Proton Pass Catalyst Safari Extension"
+            "cn.krunk.pass.catalyst" => "Open Pass Catalyst",
+            "cn.krunk.pass.catalyst.safari-extension" => "Open Pass Catalyst Safari Extension"
         }
       }
     )
@@ -155,7 +155,7 @@ lane :build_and_upload do
 
   # Upload the build to TestFlight
   output_directory = "#{BUILD_PATH}/#{build_name}"
-  pkg_path = output_directory + "/Proton Pass for Safari.pkg"
+  pkg_path = output_directory + "/Open Pass for Safari.pkg"
   upload_to_testflight(
       api_key: api_key,
       skip_submission: true,

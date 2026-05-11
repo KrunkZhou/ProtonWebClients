@@ -74,7 +74,7 @@ private extension LoggedOutView {
     var step2: some View {
         VStack(alignment: .center) {
             stepNumber(2)
-            stepDescription("Sign into your Proton account.")
+            stepDescription("Sign in to your account.")
             Spacer()
             stepImage("Step2")
         }

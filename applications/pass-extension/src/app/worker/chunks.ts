@@ -8,6 +8,7 @@ const getCryptoChunkName = (chunkDesc: string) => `chunk.crypto-${chunkDesc}.js`
 
 export const CRYPTO_DYNAMIC_IMPORTS_CHUNKS_MAP: Record<string, string> = {
     vendor_argon2id_loader_ts: getCryptoChunkName('argon2'),
+    node_modules_openpgp_dist_lightweight_argon2id_min_mjs: getCryptoChunkName('argon2'),
     'node_modules_openpgp_dist_lightweight_nacl-fast_min_mjs': getCryptoChunkName('nacl'),
     node_modules_openpgp_dist_lightweight_noble_post_quantum_min_mjs: getCryptoChunkName('pqc'),
     node_modules_openpgp_dist_lightweight_noble_hashes_min_mjs: getCryptoChunkName('noblehashes'),
