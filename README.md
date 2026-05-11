@@ -1,18 +1,8 @@
-# Web clients
+# <img src="../../applications/pass/src/favicon.svg" style="vertical-align: middle; margin-right: 5px;" height="25" width="25" /> <span style="vertical-align: middle; display: inline-block">Proton Pass Extension</span>
 
-This project is a monorepo hosting the Proton web clients. It includes the web applications, their dependencies & shared modules as well as all tooling surrounding development of the web clients (as well as some additional miscellaneous things).
+This is a Modified Proton Pass web extension with add-on features
 
-- <img src="./applications/mail/src/favicon.svg" style="vertical-align: middle" height="20" width="20" /> <span style="vertical-align: middle; display: inline-block">Proton Mail</span>
-- <img src="./applications/calendar/src/favicon.svg" style="vertical-align: middle" height="20" width="20" /> <span style="vertical-align: middle; display: inline-block">Proton Calendar</span>
-- <img src="./applications/drive/src/favicon.svg" style="vertical-align: middle" height="20" width="20" /> <span style="vertical-align: middle; display: inline-block">Proton Drive</span>
-- <img src="./applications/account/src/favicon.svg" style="vertical-align: middle" height="20" width="20" /> <span style="vertical-align: middle; display: inline-block">Proton Account</span>
-- <img src="./applications/vpn-settings/src/favicon.svg" style="vertical-align: middle" height="20" width="20" /> <span style="vertical-align: middle; display: inline-block">Proton VPN</span>
-- <img src="./applications/pass/src/favicon.svg" style="vertical-align: middle" height="20" width="20" /> <span style="vertical-align: middle; display: inline-block">Proton Pass</span>
-- <img src="./applications/wallet/src/favicon.svg" style="vertical-align: middle" height="20" width="20" /> <span style="vertical-align: middle; display: inline-block">Proton Wallet</span>
-- <img src="./applications/lumo/src/favicon.svg" style="vertical-align: middle" height="20" width="20" /> <span style="vertical-align: middle; display: inline-block">Proton Lumo</span>
-- <img src="./applications/meet/src/favicon.svg" style="vertical-align: middle" height="20" width="20" /> <span style="vertical-align: middle; display: inline-block">Proton Meet</span>
-
-Technically, this monorepo is based on Yarn & Yarn Workspaces, with unified versioning for all packages inside.
+- Custom E-Mail auto fill
 
 ## Getting Started
 
@@ -26,49 +16,36 @@ You'll need to have the following environment to work with this project:
 
 See `package.json` for specific version requirements.
 
-### Installation
+### Installation on Apple Silicon Macs
 
 ```shell
-# Clone the project
-git clone https://github.com/ProtonMail/WebClients.git
-git clone git@github.com:ProtonMail/WebClients.git
-
-# Install all dependencies for the entire monorepo & symlink
-# local dependents to one another
-yarn install
-
-# Run web clients by running proton-<package-name>
-# Example: proton mail web client
-yarn workspace proton-mail start
+arch -x86_64 yarn workspaces focus root proton-pass-extension
+arch -x86_64 yarn workspace proton-pass-extension start
 ```
 
-For additional details on how to interact with the monorepo, see the [yarn docs](https://yarnpkg.com/) for reference.
-
-## How VPN app differs from the rest
-
-VPN is present in both proton.me and protonvpn.com. However, they are served differently. Some parts of VPN are shared, hosted within `@proton/components` or `@proton/shared`, however, the entry points to them are different.
-
-For protonvpn.com, the entry point comes from `applications/vpn-settings` and for account.proton.me/u/{X}/vpn, the entry point is `applications/account`.
-
-Since both domains are separate, we don't share a local SSO between them. Therefore, we need to serve both applications separately:
+### Build for Chrome
 
 ```shell
-# To serve VPN through vpn-settings
-yarn workspace --port 8050 proton-vpn-settings start
-
-# To serve VPN through account
-yarn start-all --applications "proton-account"
+arch -x86_64 node .yarn/releases/yarn-4.13.0.cjs workspace proton-pass-extension build:extension
 ```
 
-## How to version an application manually
+### Build for Safari
 
-While being on the `main` branch for a clean release.
-
-From the root folder, run `yarn workspace @proton/version run version --applications proton-X --version x.x.x.x`
-
-## Help us to translate the project
-
-You can learn more about it on [our blog post](https://proton.me/blog/translation-community).
+```shell
+sed -i '' -E "s/(\"version\": )\"[^\"]*\"/\1\"$(date +%Y.%m%d.%H%M)\"/" manifest-safari.json && BUILD_TARGET=safari yarn build:extension && (
+  cd safari &&
+  ruby ./tools/reference_dist_directory.rb &&
+  xcodebuild \
+    -project "Proton Pass.xcodeproj" \
+    -scheme "Open Pass" \
+    -configuration Debug \
+    -derivedDataPath ./build \
+    build &&
+  open "./build/Build/Products/Debug-maccatalyst/Open Pass for Safari.app" &&
+  pkill -x Safari &&
+  open -a Safari
+)
+```
 
 ## License
 

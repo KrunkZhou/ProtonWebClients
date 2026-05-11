@@ -95,11 +95,11 @@ sed -i '' -E "s/(\"version\": )\"[^\"]*\"/\1\"$(date +%Y.%m%d.%H%M)\"/" manifest
   ruby ./tools/reference_dist_directory.rb &&
   xcodebuild \
     -project "Proton Pass.xcodeproj" \
-    -scheme "Proton Pass" \
+    -scheme "Open Pass" \
     -configuration Debug \
     -derivedDataPath ./build \
     build &&
-  open "./build/Build/Products/Debug-maccatalyst/Proton Pass for Safari.app" &&
+  open "./build/Build/Products/Debug-maccatalyst/Open Pass for Safari.app" &&
   pkill -x Safari &&
   open -a Safari
 )
