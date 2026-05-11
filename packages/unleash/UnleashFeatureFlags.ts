@@ -143,12 +143,14 @@ enum PaymentsFlag {
 export enum CalendarFeatureFlag {
     CalendarEventsPrefetch = 'CalendarEventsPrefetch',
     EditSingleOccurrenceWeb = 'EditSingleOccurrenceWeb',
-    VideoConferenceWidget = 'VideoConferenceWidget',
-    ZoomIntegrationDisabled = 'ZoomIntegrationDisabled',
     CalendarMetrics = 'CalendarMetrics',
     RsvpCommentWeb = 'RsvpCommentWeb',
-    CalendarBookings = 'CalendarBookings',
-    CalendarExternalBookings = 'CalendarExternalBookings',
+}
+
+export enum CalendarKillSwitchFlag {
+    ZoomIntegrationDisabled = 'ZoomIntegrationDisabled',
+    CalendarExternalBookingsDisabled = 'CalendarExternalBookingsDisabled',
+    CalendarBookingsDisabled = 'CalendarBookingsDisabled',
 }
 
 enum DriveFeatureFlag {
@@ -246,21 +248,23 @@ export enum MailFeatureFlag {
     ReplayOnboardingModal = 'ReplayOnboardingModal',
     MailMetrics = 'MailMetrics',
     MailWebListTelemetry = 'MailWebListTelemetry',
-    MailPostSignupOneDollarPromo = 'MailPostSignupOneDollarPromo',
     SubscriberNudgeMailMonthly = 'SubscriberNudgeMailMonthly',
     RemoveReplyStyles = 'RemoveReplyStyles',
-    // Category view flags
-    // Used to control the whole category view
+    // Category view flags, used to control the whole category view
     CategoryView = 'CategoryView',
     // Attempt to fix the unability to save/send drafts on huge accounts
     PreventEventLoopCallOnCompose = 'PreventEventLoopCallOnCompose',
-    FasterEncryptedSearchIndexing = 'FasterEncryptedSearchIndexing',
-    EncryptedSearchMigrationSystemDisabled = 'EncryptedSearchMigrationSystemDisabled',
     MailStoreDebugMode = 'MailStoreDebugMode',
-    MailInfitiniteLoopRateLimiterEnabled = 'MailInfitiniteLoopRateLimiterEnabled',
+}
+
+enum MailKillSwitchFlag {
+    MailPostSignupOneDollarPromoDisabled = 'MailPostSignupOneDollarPromoDisabled',
+    MailInfitiniteLoopRateLimiterDisabled = 'MailInfitiniteLoopRateLimiterDisabled',
+    EncryptedSearchMigrationSystemDisabled = 'EncryptedSearchMigrationSystemDisabled',
     // Refreshed toolbar UI flags
     RefreshedFilterUIDisabled = 'RefreshedFilterUIDisabled',
     RawLinkParsingDisabled = 'RawLinkParsingDisabled',
+    OverrideNewsletterViewName = 'OverrideNewsletterViewName',
 }
 
 enum AdminFeatureFlag {
@@ -289,6 +293,7 @@ enum MeetFeatureFlag {
     MeetPromptOnTabClose = 'MeetPromptOnTabClose',
     MeetSoundNotificationsEnabled = 'MeetSoundNotificationsEnabled',
     MeetNewJoinType = 'MeetNewJoinType',
+    MeetNewSwitchJoinType = 'MeetNewSwitchJoinType',
     MeetSwitchJoinType = 'MeetSwitchJoinType',
     MeetSeamlessKeyRotationEnabled = 'MeetSeamlessKeyRotationEnabled',
     MeetShowUpsellModalAfterMeeting = 'MeetShowUpsellModalAfterMeeting',
@@ -353,9 +358,11 @@ export type FeatureFlag =
     | `${AccountFlag}`
     | `${PaymentsFlag}`
     | `${CalendarFeatureFlag}`
+    | `${CalendarKillSwitchFlag}`
     | `${DriveFeatureFlag}`
     | `${DocsFeatureFlag}`
     | `${MailFeatureFlag}`
+    | `${MailKillSwitchFlag}`
     | `${AdminFeatureFlag}`
     | `${WalletFlag}`
     | `${MeetFeatureFlag}`
