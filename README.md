@@ -26,7 +26,7 @@ arch -x86_64 yarn workspace proton-pass-extension start
 ### Build for Chrome
 
 ```shell
-arch -x86_64 node .yarn/releases/yarn-4.13.0.cjs workspace proton-pass-extension build:extension
+arch -x86_64 yarn workspace proton-pass-extension build:extension
 ```
 
 ### Build for Safari
