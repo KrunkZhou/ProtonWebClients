@@ -691,7 +691,7 @@
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Proton Pass/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "Proton Pass for Safari";
+				INFOPLIST_KEY_CFBundleDisplayName = "Open Pass for Safari";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;
@@ -734,7 +734,7 @@
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Proton Pass/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "Proton Pass for Safari";
+				INFOPLIST_KEY_CFBundleDisplayName = "Open Pass for Safari";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;

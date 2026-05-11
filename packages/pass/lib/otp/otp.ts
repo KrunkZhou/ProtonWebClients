@@ -17,7 +17,7 @@ type OTPOptions = {
 
 export const OTP_DEFAULTS = {
     issuer: '',
-    label: 'Proton Pass',
+    label: 'Open Pass',
     algorithm: 'SHA1',
     digits: 6,
     period: 30,

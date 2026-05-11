@@ -1,6 +1,6 @@
 {
     "name": "proton-pass-extension",
-    "description": "Password Manager Browser Extension",
+    "description": "Open Pass browser extension",
     "license": "GPL-3.0",
     "scripts": {
         "build:extension": "cross-env API_ENV=proton.me BUILD_TARGET=${BUILD_TARGET:-chrome} sh -c 'yarn clean && yarn build:extension:helper'",

@@ -62,7 +62,7 @@ private extension LoggedOutView {
     var step1: some View {
         VStack(alignment: .center) {
             stepNumber(1)
-            stepDescription("Enable Proton Pass in Safari Extensions preferences.")
+            stepDescription("Enable Open Pass in Safari Extensions preferences.")
             Button(action: { viewModel.openSafari() },
                    label: { Text("Open Safari") })
                 .buttonStyle(.borderedProminent)

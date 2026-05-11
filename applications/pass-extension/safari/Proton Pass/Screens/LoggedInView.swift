@@ -103,7 +103,7 @@ private extension LoggedInView {
                     Text("This will permanently delete your Proton account and all of its data, including email, calendars and data stored in Drive. You will not be able to reactivate this account.")
                         .foregroundStyle(.secondary)
                         .padding(.bottom)
-                    Text(verbatim: "Proton Pass for Safari")
+                    Text(verbatim: "Open Pass for Safari")
                         .font(.body)
                     Text(verbatim: "\(Bundle.main.versionNumber)")
                         .foregroundStyle(.secondary)

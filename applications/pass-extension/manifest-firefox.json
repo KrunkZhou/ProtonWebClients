@@ -1,6 +1,6 @@
 {
-    "name": "Proton Pass: Free Password Manager",
-    "description": "Free and fully encrypted password manager to keep your logins and passwords safe.",
+    "name": "Open Pass: Password Manager",
+    "description": "Modified version of Proton Pass, an open-source password manager.",
     "version": "1.36.1",
     "manifest_version": 3,
     "background": {
@@ -69,13 +69,13 @@
             "suggested_key": {
                 "default": "Ctrl+Shift+Y"
             },
-            "description": "Open Proton Pass"
+            "description": "Open the Open Pass popup"
         },
         "open-larger-window": {
             "suggested_key": {
                 "default": "Ctrl+Shift+L"
             },
-            "description": "Open Proton Pass in a larger window"
+            "description": "Open the Open Pass window"
         }
     },
     "icons": {
