@@ -175,11 +175,26 @@ const config: Configuration = {
               }
             : {}),
 
+        ...(BUILD_TARGET === 'chrome'
+            ? {
+                  'account-bridge': {
+                      /* Chrome account page bridge for custom extension IDs */
+                      import: './src/app/content/chrome/account-bridge.ts',
+                      layer: 'injection',
+                  },
+                  account: {
+                      /* Chrome account communication relay */
+                      import: disableBrowserTrap('./src/app/content/chrome/account.ts'),
+                      layer: 'injection',
+                  },
+              }
+            : {}),
+
         ...(BUILD_TARGET === 'safari'
             ? {
                   'account-bridge': {
                       /* Safari account page bridge for custom extension IDs */
-                      import: disableBrowserTrap('./src/app/content/safari/account-bridge.ts'),
+                      import: './src/app/content/safari/account-bridge.ts',
                       layer: 'injection',
                   },
                   fork: {
@@ -343,6 +358,8 @@ const config: Configuration = {
                                 ];
                                 break;
                             case 'chrome':
+                                manifest.content_scripts[1].matches = [`https://account.${API_ENV}/*`];
+                                manifest.content_scripts[2].matches = [`https://account.${API_ENV}/*`];
                                 manifest.externally_connectable.matches = [
                                     `https://account.${API_ENV}/*`,
                                     `https://pass.${API_ENV}/*`,

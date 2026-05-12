@@ -1140,6 +1140,7 @@ const PROTONPASS_EXTENSION_IDS = [
     'ghmbeldphafepmbegfdlkpapadhbakde' /* chromium production */,
     'hlaiofkbmjenhgeinjlmkafaipackfjh' /* chromium beta channel */,
     'gcllgfdnfnllodcaambdaknbipemelie' /* edge production */,
+    'ljfhlglboocpjbljecnikachfabbnnmd' /* open pass chromium */,
     'me.proton.pass.catalyst.safari-extension (2SB5Z68H26)' /* safari extension */,
 ] as const;
 
