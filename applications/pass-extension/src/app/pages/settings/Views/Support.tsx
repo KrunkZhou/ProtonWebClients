@@ -5,7 +5,7 @@ import { ReportAProblem } from '@proton/pass/components/Settings/ReportAProblem'
 
 export const Support: FC = () => (
     <>
-        <ReportAProblem />
+        {/* <ReportAProblem /> */}
         <Feedback />
     </>
 );

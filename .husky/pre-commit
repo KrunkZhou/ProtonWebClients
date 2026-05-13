@@ -1,8 +1,8 @@
 #!/bin/sh
 set -e
 
-if command -v yarn >/dev/null 2>&1; then
-    yarn run lint-staged
-else
-    node .yarn/releases/yarn-4.13.0.cjs run lint-staged
-fi
+# if command -v yarn >/dev/null 2>&1; then
+#     yarn run lint-staged
+# else
+#     node .yarn/releases/yarn-4.13.0.cjs run lint-staged
+# fi

@@ -29,21 +29,21 @@ export const Feedback: FC = () => {
             label: c('Action').t`How to use ${PASS_APP_NAME}`,
             onClick: () => onLink(PASS_HOWTO_URL),
         },
-        {
-            icon: 'brand-twitter',
-            label: c('Action').t`Write us on X/Twitter`,
-            onClick: () => onLink(PASS_X_URL),
-        },
-        {
-            icon: 'brand-reddit',
-            label: c('Action').t`Join our Reddit`,
-            onClick: () => onLink(PASS_REDDIT_URL),
-        },
-        {
-            icon: 'rocket',
-            label: c('Action').t`Request a feature`,
-            onClick: () => onLink(PASS_REQUEST_URL),
-        },
+        // {
+        //     icon: 'brand-twitter',
+        //     label: c('Action').t`Write us on X/Twitter`,
+        //     onClick: () => onLink(PASS_X_URL),
+        // },
+        // {
+        //     icon: 'brand-reddit',
+        //     label: c('Action').t`Join our Reddit`,
+        //     onClick: () => onLink(PASS_REDDIT_URL),
+        // },
+        // {
+        //     icon: 'rocket',
+        //     label: c('Action').t`Request a feature`,
+        //     onClick: () => onLink(PASS_REQUEST_URL),
+        // },
         {
             icon: 'gift',
             label: c('Action').t`Apply lifetime coupon code`,
