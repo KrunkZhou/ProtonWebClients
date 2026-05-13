@@ -5,7 +5,8 @@ This is a Modified Proton Pass web extension with add-on features
 - Custom E-Mail auto fill (1.36.1.1)
 - Biometric unlock (1.36.1.3)
 - More auto lock time selection (3, 8 hours, 1 day, until browser closed) (1.36.1.3)
-- Domain wildcard (1.36.1.4)
+- Domain wildcard support (1.36.1.4)
+  - Ex. `https://*.google.com:*` will allow `maps.google.com:8123`
 
 ## Getting Started
 
