@@ -6,8 +6,12 @@ import type {
     ItemRevision,
     ItemType,
 } from '@proton/pass/types';
+import { ItemUrlMatch, getItemPriorityForUrl } from '@proton/pass/lib/search/match-url';
 import { dynMemo } from '@proton/pass/utils/fp/memo';
 import { deobfuscate } from '@proton/pass/utils/obfuscate/xor';
+import { parseUrl } from '@proton/pass/utils/url/parser';
+import { sanitizeURL } from '@proton/pass/utils/url/sanitize';
+import { resolveSubdomain } from '@proton/pass/utils/url/utils';
 import { normalize } from '@proton/shared/lib/helpers/string';
 
 import type { FieldMatch, ItemMatch, ItemMatchMap } from './types';
@@ -18,6 +22,17 @@ const isFieldTypeSearchable = <F extends { type: ExtraFieldType }>(field: F): fi
 
 const memoNormalize = dynMemo((str: string) => normalize(str, true));
 const memoDeobfuscate = dynMemo(deobfuscate);
+const URL_SCHEME_REGEX = /^[a-z][a-z\d+.-]*:\/\//i;
+
+const getSearchPort = (needle: string, port: string | null) => (URL_SCHEME_REGEX.test(needle) ? port : null);
+
+const matchLoginUrlHostname =
+    (item: ItemRevision<'login'>) =>
+    (hostname: string): boolean =>
+        item.data.content.urls.some((url) => {
+            const itemHostname = sanitizeURL(url).hostname;
+            return Boolean(itemHostname && itemHostname.includes(hostname));
+        });
 
 const matchStr =
     (needle: string) =>
@@ -41,6 +56,23 @@ const matchFields =
     (item) =>
     (needle) =>
         getter(item).some((field) => matchStr(needle)(field));
+
+const matchLoginUrl =
+    (item: ItemRevision<'login'>) =>
+    (needle: string): boolean => {
+        const parsedUrl = parseUrl(needle);
+        const match = resolveSubdomain(parsedUrl);
+        if (!match) return false;
+
+        return (
+            (!URL_SCHEME_REGEX.test(needle) && matchLoginUrlHostname(item)(parsedUrl.domain ?? match)) ||
+            getItemPriorityForUrl(item.data)(match, {
+                isPrivate: parsedUrl.isPrivate,
+                port: getSearchPort(needle, parsedUrl.port),
+                protocol: URL_SCHEME_REGEX.test(needle) ? parsedUrl.protocol : null,
+            }) !== ItemUrlMatch.NO_MATCH
+        );
+    };
 
 /** Matches fields from an `IterableIterator` returned by the getter function.
  * Uses lazy evaluation and early return for efficiency. */
@@ -135,6 +167,7 @@ const matchesLoginItem: ItemMatch<'login'> = combineMatchers<'login'>(
     matchField((item) => memoDeobfuscate(item.data.content.itemUsername)),
     matchField((item) => memoDeobfuscate(item.data.metadata.note)),
     matchFields((item) => item.data.content.urls),
+    matchLoginUrl,
     matchExtraFields((item) => ({ obfuscated: item.data.extraFields }))
 );
 

@@ -96,7 +96,7 @@ export const createMatchDomainItemsSelector = (domain: MaybeNull<string>, option
                       .reduce<{ item: ItemRevision<'login'>; priority: ItemUrlMatch }[]>((matches, item) => {
                           if (isItemType('login')(item) && isActive(item)) {
                               const validShareIds = !shareIds || shareIds.includes(item.shareId);
-                              const validUrls = item.data.content.urls.some((url) => url.includes(domain));
+                              const validUrls = item.data.content.urls.some((url) => url.includes(domain) || url.includes('*'));
 
                               /* If the item does not pass this initial "fuzzy" test, then we
                                * should not even consider it as an autofill candidate.

@@ -1,4 +1,5 @@
 import type { MaybeNull } from '@proton/pass/types';
+import { validateDomain } from '@proton/shared/lib/helpers/email';
 
 import { sanitizeURL } from './sanitize';
 import type { ParsedUrl, URLComponents } from './types';
@@ -28,6 +29,8 @@ export const isTotpUri = (maybeUri: string): boolean => maybeUri.startsWith('otp
 export const isValidScheme = (url: string) => !UNSUPPORTED_SCHEMES_REGEX.test(url.trim());
 export const isValidURLScheme = (url?: URL): url is URL =>
     url !== undefined && !UNSUPPORTED_SCHEMES.includes(url.protocol);
+export const isValidWildcardHostname = (hostname: string): boolean =>
+    hostname === '*' || (hostname.startsWith('*.') && !hostname.slice(2).includes('*') && validateDomain(hostname.slice(2)));
 
 export const urlEq = (a: URLComponents, b: URLComponents) => URL_COMPONENTS.every((key) => a[key] === b[key]);
 
@@ -48,6 +51,8 @@ export const intoDomainImageHostname = (maybeUrl: string): MaybeNull<string> => 
 
     /* Exclude empty domain URLs */
     if (hostname.indexOf('.') === -1) return null;
+    /* Exclude wildcard patterns: image proxy expects a concrete hostname */
+    if (isValidWildcardHostname(hostname)) return null;
     /* Exclude common non-ICANN domains */
     if (/(\.?arpa|\.?onion|\.?local|\.?example(\.(com|org|net))?)$/.test(hostname)) return null;
     /* Quick check for IP address endings */

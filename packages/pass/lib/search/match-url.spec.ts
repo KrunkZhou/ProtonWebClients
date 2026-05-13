@@ -125,6 +125,15 @@ describe('match url', () => {
             expect(result).toBe(ItemUrlMatch.SUB_MATCH);
         });
 
+        test('should return `SUB_MATCH` on subdomain with wildcard port', () => {
+            const item = createMockItem(['http://sub.proton.ch:*/']);
+
+            expect(getItemPriorityForUrl(item)('proton.ch', { ...filter, port: '3001' })).toBe(
+                ItemUrlMatch.SUB_MATCH
+            );
+            expect(getItemPriorityForUrl(item)('proton.ch', { ...filter, port: '8080' })).toBe(ItemUrlMatch.SUB_MATCH);
+        });
+
         test('should return `SUB_MATCH` on deeper non-private subdomain matches', () => {
             const item1 = createMockItem(['https://a.b.c.me']);
             const result1 = getItemPriorityForUrl(item1)('a.b.c.me', filter);
@@ -133,6 +142,57 @@ describe('match url', () => {
             const item2 = createMockItem(['https://a.b.c.me']);
             const result2 = getItemPriorityForUrl(item2)('b.c.me', filter);
             expect(result2).toBe(ItemUrlMatch.SUB_MATCH);
+        });
+
+        test('should return `SUB_MATCH` on wildcard domain matches', () => {
+            const item = createMockItem(['https://*.google.com']);
+
+            expect(getItemPriorityForUrl(item)('accounts.google.com', filter)).toBe(ItemUrlMatch.SUB_MATCH);
+            expect(getItemPriorityForUrl(item)('mail.accounts.google.com', filter)).toBe(ItemUrlMatch.SUB_MATCH);
+            expect(getItemPriorityForUrl(item)('google.com', filter)).toBe(ItemUrlMatch.NO_MATCH);
+            expect(getItemPriorityForUrl(item)('accounts.google.org', filter)).toBe(ItemUrlMatch.NO_MATCH);
+        });
+
+        test('should return `SUB_MATCH` on global wildcard matches', () => {
+            const item = createMockItem(['https://*']);
+
+            expect(getItemPriorityForUrl(item)('accounts.google.com', filter)).toBe(ItemUrlMatch.SUB_MATCH);
+            expect(getItemPriorityForUrl(item)('example.org', filter)).toBe(ItemUrlMatch.SUB_MATCH);
+        });
+
+        test('should return `SUB_MATCH` on wildcard domain matches in strict mode', () => {
+            const item = createMockItem(['https://*.google.com']);
+            const result = getItemPriorityForUrl(item)('accounts.google.com', { ...filter, strict: true });
+
+            expect(result).toBe(ItemUrlMatch.SUB_MATCH);
+        });
+
+        test('should account for protocol and port on wildcard domain matches', () => {
+            const item = createMockItem(['https://*.google.com:3001']);
+
+            expect(getItemPriorityForUrl(item)('accounts.google.com', { ...filter, protocol: 'https:' })).toBe(
+                ItemUrlMatch.SUB_MATCH
+            );
+            expect(getItemPriorityForUrl(item)('accounts.google.com', { ...filter, protocol: 'http:' })).toBe(
+                ItemUrlMatch.NO_MATCH
+            );
+            expect(getItemPriorityForUrl(item)('accounts.google.com', { ...filter, port: '3001' })).toBe(
+                ItemUrlMatch.SUB_MATCH
+            );
+            expect(getItemPriorityForUrl(item)('accounts.google.com', { ...filter, port: '3002' })).toBe(
+                ItemUrlMatch.NO_MATCH
+            );
+        });
+
+        test('should account for wildcard port on wildcard domain matches', () => {
+            const item = createMockItem(['https://*.google.com:*']);
+
+            expect(getItemPriorityForUrl(item)('accounts.google.com', { ...filter, port: '3001' })).toBe(
+                ItemUrlMatch.SUB_MATCH
+            );
+            expect(getItemPriorityForUrl(item)('accounts.google.com', { ...filter, port: '8080' })).toBe(
+                ItemUrlMatch.SUB_MATCH
+            );
         });
 
         test('should return `SUB_MATCH` on subdomain with query parameters', () => {

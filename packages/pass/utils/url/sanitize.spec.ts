@@ -58,6 +58,49 @@ describe('URL validation', () => {
         test('should preserve ports', () => {
             expect(sanitizeURL('http://localhost:3000').url).toEqual('http://localhost:3000/');
             expect(sanitizeURL('https://localhost:3001?foo=bar').url).toEqual('https://localhost:3001/?foo=bar');
+            expect(sanitizeURL('krunk.cn:1234')).toMatchObject({
+                valid: true,
+                hostname: 'krunk.cn',
+                port: '1234',
+                url: 'https://krunk.cn:1234/',
+            });
+        });
+
+        test('should preserve wildcard ports', () => {
+            expect(sanitizeURL('http://home1.ts.krunk.cn:*/')).toMatchObject({
+                valid: true,
+                hostname: 'home1.ts.krunk.cn',
+                port: '*',
+                url: 'http://home1.ts.krunk.cn:*/',
+            });
+            expect(sanitizeURL('home1.ts.krunk.cn:*/login').url).toEqual('https://home1.ts.krunk.cn:*/login');
+            expect(sanitizeURL('http://*.krunk.cn:*/').valid).toBe(true);
+        });
+
+        test('should accept leading wildcard hostnames', () => {
+            expect(sanitizeURL('*')).toMatchObject({
+                valid: true,
+                hostname: '*',
+                url: 'https://*/',
+            });
+            expect(sanitizeURL('*.google.com')).toMatchObject({
+                valid: true,
+                hostname: '*.google.com',
+                url: 'https://*.google.com/',
+            });
+            expect(sanitizeURL('https://*.google.com/login').valid).toBe(true);
+            expect(sanitizeURL('http://*.ts.krunk.cn/')).toMatchObject({
+                valid: true,
+                hostname: '*.ts.krunk.cn',
+                protocol: 'http:',
+                url: 'http://*.ts.krunk.cn/',
+            });
+        });
+
+        test('should invalidate unsupported wildcard hostnames', () => {
+            expect(sanitizeURL('google.*').valid).toBe(false);
+            expect(sanitizeURL('*.*.google.com').valid).toBe(false);
+            expect(sanitizeURL('accounts.*.google.com').valid).toBe(false);
         });
 
         test('should invalidate URLs containing internal white-spaces', () => {

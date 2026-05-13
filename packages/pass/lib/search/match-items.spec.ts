@@ -324,4 +324,48 @@ describe('searchItems', () => {
     ])('should return empty array when no match $key', ({ search }) => {
         search.forEach(searchAndExpect(items, []));
     });
+
+    test('should match login items with wildcard domains from concrete URL searches', () => {
+        const wildcardItem = {
+            data: {
+                type: 'login',
+                metadata: { name: 'Wildcard login', note: obfuscate(''), itemUuid: 'wildcard-domain' },
+                content: {
+                    itemEmail: obfuscate(''),
+                    itemUsername: obfuscate(''),
+                    urls: ['https://*.google.com'],
+                    password: obfuscate(''),
+                    totpUri: obfuscate(''),
+                },
+                extraFields: [],
+            },
+        } as ItemRevision;
+
+        searchAndExpect([wildcardItem], [wildcardItem])('accounts.google.com');
+        searchAndExpect([wildcardItem], [wildcardItem])('https://mail.accounts.google.com');
+        searchAndExpect([wildcardItem], [wildcardItem])('google.com');
+        searchAndExpect([wildcardItem], [])('accounts.google.org');
+    });
+
+    test('should match login items with wildcard ports from concrete URL searches', () => {
+        const wildcardPortItem = {
+            data: {
+                type: 'login',
+                metadata: { name: 'Wildcard port login', note: obfuscate(''), itemUuid: 'wildcard-port' },
+                content: {
+                    itemEmail: obfuscate(''),
+                    itemUsername: obfuscate(''),
+                    urls: ['http://home1.ts.krunk.cn:*/'],
+                    password: obfuscate(''),
+                    totpUri: obfuscate(''),
+                },
+                extraFields: [],
+            },
+        } as ItemRevision;
+
+        searchAndExpect([wildcardPortItem], [wildcardPortItem])('http://home1.ts.krunk.cn:3001/');
+        searchAndExpect([wildcardPortItem], [wildcardPortItem])('http://home1.ts.krunk.cn:8080/');
+        searchAndExpect([wildcardPortItem], [wildcardPortItem])('krunk.cn:1234');
+        searchAndExpect([wildcardPortItem], [])('https://home1.ts.krunk.cn:3001/');
+    });
 });
