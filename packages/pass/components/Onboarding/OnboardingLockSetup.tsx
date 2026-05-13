@@ -47,7 +47,9 @@ export const OnboardingLockSetup: FC = () => {
                 label: c('Label').t`Biometrics`,
                 icon: isMac() ? 'fingerprint' : 'pass-lockmode-biometrics',
                 needsUpgrade: biometrics.needsUpgrade,
-                active: DESKTOP_BUILD && password.enabled && biometrics.enabled,
+                active:
+                    (DESKTOP_BUILD && password.enabled && biometrics.enabled) ||
+                    (EXTENSION_BUILD && ['chrome', 'safari'].includes(BUILD_TARGET) && biometrics.enabled),
             },
             {
                 value: LockMode.DESKTOP,
@@ -70,7 +72,7 @@ export const OnboardingLockSetup: FC = () => {
         ];
 
         return options.filter(prop('active'));
-    }, [lock, password, biometrics]);
+    }, [lock, password, biometrics, extensionBiometrics]);
 
     return (
         <>
@@ -101,6 +103,7 @@ export const OnboardingLockSetup: FC = () => {
                 ttl={lock.ttl.value}
                 disabled={!online || lock.ttl.disabled || lock.loading}
                 onChange={setLockTTL}
+                includeBrowserSession={lock.mode !== LockMode.SESSION}
                 label={
                     <>
                         {c('Label').t`Auto-lock after`}

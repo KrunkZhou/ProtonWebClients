@@ -22,6 +22,7 @@ export const fromBiometricsEncryptedOfflineKD = (encryptedOfflineKD: string): Bi
 
 /** Starting from >= 1.24.0 */
 export const getBiometricsStorageKey = (localID: number) => `${BIOMETRICS_KEY}::${localID}`;
+export const getBiometricsSessionKey = (localID: number) => `${BIOMETRICS_KEY}::SESSION::${localID}`;
 
 /** Resolves the biometric storage key based on the encrypted offline key.
  * For encrypted offline keys created before account switching (< v1.24.0),

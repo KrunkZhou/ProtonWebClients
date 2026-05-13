@@ -19,12 +19,14 @@ export const LockSetup: FC<Props> = ({ noTTL = false }) => {
     const passwordTypeSwitch = usePasswordTypeSwitch();
 
     /**
-     * Available on desktop,
-     * or web when feature flag enabled,
-     * or if lockMode is already biometrics (eg. when rolling back the flag)
+     * Available on desktop, browser extensions with WebAuthn PRF support,
+     * or if lockMode is already biometrics (eg. when rolling back support).
      */
     const showBiometricsOption =
-        password.enabled && BUILD_TARGET !== 'linux' && (DESKTOP_BUILD || lock.mode === LockMode.BIOMETRICS);
+        BUILD_TARGET !== 'linux' &&
+        ((DESKTOP_BUILD && password.enabled) ||
+            (EXTENSION_BUILD && ['chrome', 'safari'].includes(BUILD_TARGET)) ||
+            lock.mode === LockMode.BIOMETRICS);
 
     const showDesktopOption = extensionBiometrics.enabled || lock.mode === LockMode.DESKTOP;
 
@@ -144,6 +146,7 @@ export const LockSetup: FC<Props> = ({ noTTL = false }) => {
                         ttl={lock.ttl.value}
                         disabled={!online || lock.ttl.disabled || lock.loading}
                         onChange={setLockTTL}
+                        includeBrowserSession={lock.mode !== LockMode.SESSION}
                         label={
                             <>
                                 {c('Label').t`Auto-lock after`}

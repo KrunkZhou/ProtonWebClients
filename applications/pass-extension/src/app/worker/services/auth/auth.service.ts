@@ -279,6 +279,7 @@ export const createAuthService = (api: Api, authStore: AuthStore) => {
                     break;
 
                 case LockMode.PASSWORD:
+                case LockMode.BIOMETRICS:
                     /** NOTE: can only happen during offline unlocking for now */
                     if (offline) ctx.service.store.dispatch(bootIntent({ offline: true }));
                     else await authService.resumeSession(localID, { retryable: false, unlocked: true });

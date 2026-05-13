@@ -95,7 +95,7 @@ export type PassCoreContextValue = {
     /** Gets the unlock key via biometrics */
     getBiometricsKey?: (authStore: AuthStore) => Promise<MaybeNull<string>>;
     /** Generates the unlock key for biometrics */
-    generateBiometricsKey?: () => Promise<CryptoKey>;
+    generateBiometricsKey?: () => Promise<CryptoKey | string>;
     /** Checks if this is the first time Pass is being launched */
     isFirstLaunch?: () => boolean;
     /** Only relevant for extension */

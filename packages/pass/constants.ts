@@ -12,6 +12,7 @@ export const MIN_MAX_BATCH_PER_REQUEST = 10;
 export const MAX_BATCH_PER_IMPORT_REQUEST = 50;
 
 export const DEFAULT_LOCK_TTL = 600; /* 10 minutes */
+export const BROWSER_SESSION_LOCK_TTL = 0; /* Until browser closes */
 
 export const MAX_ITEM_NAME_LENGTH = 200;
 export const MAX_ITEM_NOTE_LENGTH = 25_000;

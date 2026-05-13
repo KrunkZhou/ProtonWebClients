@@ -35,7 +35,7 @@ export type UnlockDTO = { offline?: boolean } & (
 export type LockCreateDTO = { ttl: number; current?: UnlockDTO } & (
     | { mode: LockMode.PASSWORD; password: XorObfuscation }
     | { mode: LockMode.SESSION; pin: string }
-    | { mode: LockMode.BIOMETRICS; password: XorObfuscation }
+    | { mode: LockMode.BIOMETRICS; password?: XorObfuscation; key?: string }
     | { mode: LockMode.DESKTOP; secret: string /** FIXME: needs to be `password` for offline support */ }
     | { mode: LockMode.NONE }
 );
@@ -51,7 +51,7 @@ export interface LockAdapter<TCreate = string, TUnlock = TCreate> {
     unlock: (secret: TUnlock) => Promise<Maybe<string>>;
 }
 
-export type LockAdapterBiometrics = LockAdapter<XorObfuscation, string>;
+export type LockAdapterBiometrics = LockAdapter<XorObfuscation | { password?: XorObfuscation; key?: string }, string>;
 export type LockAdapterPassword = LockAdapter<XorObfuscation, XorObfuscation>;
 export type LockAdapterSession = LockAdapter<string, string>;
 export type LockAdapterDesktop = LockAdapter<string, string>;

@@ -1,8 +1,9 @@
 import { type AesGcmCryptoKey, deriveKey, exportKey } from '@protontech/crypto/subtle/aesGcm.ts';
 import { uint8ArrayToBinaryString } from '@protontech/crypto/utils';
+
 import type { AuthStore } from '@proton/pass/lib/auth/store';
 import type { MaybeNull } from '@proton/pass/types/utils';
-import { isChromiumBased, isMinimumSafariVersion, isWindows } from '@proton/shared/lib/helpers/browser';
+import { isChromiumBased, isMinimumSafariVersion } from '@proton/shared/lib/helpers/browser';
 import { stringToUint8Array } from '@proton/shared/lib/helpers/encoding';
 
 import { PassCryptoError } from './errors';
@@ -13,11 +14,12 @@ const CHALLENGE = new Uint8Array([1]);
 const FIRST_SALT = stringToUint8Array('proton.pass.webauthn.prf.firstSalt').buffer;
 const HKDF_INFO = stringToUint8Array('proton.pass.webauthn.prf');
 
-/** Until PRF is more widely adopted, we additionaly restrict this
- *  to exclude Windows, Safari < 18, and non-Chromium-based browsers */
+/** Until PRF is more widely adopted, we restrict this to Chromium-based
+ * browsers and Safari 18+, then let the platform authenticator check decide
+ * whether Touch ID, Windows Hello, or a device PIN is available. */
 export const isPRFSupported = async (): Promise<boolean> => {
     try {
-        if (isWindows() || !(isChromiumBased() || isMinimumSafariVersion(18))) return false;
+        if (!(isChromiumBased() || isMinimumSafariVersion(18))) return false;
         return await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
     } catch {
         return false;

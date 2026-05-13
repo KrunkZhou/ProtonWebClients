@@ -21,8 +21,18 @@ import { getEpoch } from '@proton/pass/utils/time/epoch';
 import { stringToUint8Array, uint8ArrayToString } from '@proton/shared/lib/helpers/encoding';
 import noop from '@proton/utils/noop';
 
+const importSerializedBiometricsKey = async (serializedKey: string) => {
+    try {
+        const base64Key = Uint8Array.fromBase64(serializedKey);
+        if (base64Key.byteLength === 16 || base64Key.byteLength === 32) return await importSymmetricKey(base64Key);
+    } catch {}
+
+    return importSymmetricKey(stringToUint8Array(serializedKey));
+};
+
 export const generateBiometricsKey = async (core: PassCoreContextValue, offlineKD: string): Promise<string> => {
-    const key = await core.generateBiometricsKey!();
+    const generatedKey = await core.generateBiometricsKey!();
+    const key = typeof generatedKey === 'string' ? await importSerializedBiometricsKey(generatedKey) : generatedKey;
     const rawOfflineKD = stringToUint8Array(offlineKD);
     const rawEncryptedOfflineKD = await encryptData(key, rawOfflineKD, PassEncryptionTag.BiometricOfflineKD);
     return intoBiometricsEncryptedOfflineKD(uint8ArrayToString(rawEncryptedOfflineKD));
@@ -71,22 +81,38 @@ export const biometricsLockAdapterFactory = (auth: AuthService, core: PassCoreCo
          * with SRP. Only then should we compute the offline components.
          * Repersists the session with the `offlineKD` encrypted in the session
          * blob. As such creating a biometrics lock is online-only. */
-        create: async (passwordBuff, ttl, onBeforeCreate) => {
+        create: async (payload, ttl, onBeforeCreate) => {
             logger.info(`[BiometricLock] creating biometrics lock`);
-            const password = deobfuscate(passwordBuff, { zeroize: true });
+            const passwordBuff = typeof payload === 'string' ? payload : payload?.password;
 
-            const verified = await auth.confirmPassword(password);
-            if (!verified) throw new Error(getInvalidPasswordString(authStore));
+            if (passwordBuff) {
+                const password = deobfuscate(passwordBuff, { zeroize: true });
+                const verified = await auth.confirmPassword(password);
 
-            if (!authStore.hasOfflinePassword()) {
-                const components = await generateOfflineComponents(password);
-                authStore.setOfflineComponents(components);
+                if (!verified) throw new Error(getInvalidPasswordString(authStore));
+
+                if (!authStore.hasOfflinePassword()) {
+                    const components = await generateOfflineComponents(password);
+                    authStore.setOfflineComponents(components);
+                }
             }
 
             const offlineKD = authStore.getOfflineKD();
-            if (!offlineKD) throw new Error('Missing offline KD');
+            if (!offlineKD) throw new Error('Missing password for biometrics lock setup');
 
-            const encryptedOfflineKD = await generateBiometricsKey(core, offlineKD);
+            const encryptedOfflineKD =
+                typeof payload === 'string' || !payload?.key
+                    ? await generateBiometricsKey(core, offlineKD)
+                    : await (async () => {
+                          const key = await importSerializedBiometricsKey(payload.key!);
+                          const rawOfflineKD = stringToUint8Array(offlineKD);
+                          const rawEncryptedOfflineKD = await encryptData(
+                              key,
+                              rawOfflineKD,
+                              PassEncryptionTag.BiometricOfflineKD
+                          );
+                          return intoBiometricsEncryptedOfflineKD(uint8ArrayToString(rawEncryptedOfflineKD));
+                      })();
 
             await onBeforeCreate?.();
 
@@ -160,7 +186,7 @@ export const biometricsLockAdapterFactory = (auth: AuthService, core: PassCoreCo
                     throw new PassCryptoError('Invalid biometric lock');
                 }
 
-                const biometricsCryptoKey = await importSymmetricKey(stringToUint8Array(biometricsSecret));
+                const biometricsCryptoKey = await importSerializedBiometricsKey(biometricsSecret);
 
                 const offlineKD = await decryptData(
                     biometricsCryptoKey,

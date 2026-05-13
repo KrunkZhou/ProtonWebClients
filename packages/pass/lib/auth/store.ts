@@ -130,7 +130,7 @@ export const createAuthStore = (store: Store) => {
             if (session.lastUsedAt !== undefined) authStore.setLastUsedAt(session.lastUsedAt);
             if (session.LocalID !== undefined) authStore.setLocalID(session.LocalID);
             if (session.lockMode) authStore.setLockMode(session.lockMode);
-            if (session.lockTTL) authStore.setLockTTL(session.lockTTL);
+            if (session.lockTTL !== undefined) authStore.setLockTTL(session.lockTTL);
             if (session.offlineConfig) authStore.setOfflineConfig(session.offlineConfig);
             if (session.offlineKD) authStore.setOfflineKD(session.offlineKD);
             if (session.offlineVerifier) authStore.setOfflineVerifier(session.offlineVerifier);

@@ -11,7 +11,7 @@ import { usePinUnlock } from '@proton/pass/components/Lock/PinUnlockProvider';
 import { useUnlock } from '@proton/pass/components/Lock/UnlockProvider';
 import { useOrganization } from '@proton/pass/components/Organization/OrganizationProvider';
 import { useUpselling } from '@proton/pass/components/Upsell/UpsellingProvider';
-import { DEFAULT_LOCK_TTL, UpsellRef } from '@proton/pass/constants';
+import { BROWSER_SESSION_LOCK_TTL, DEFAULT_LOCK_TTL, UpsellRef } from '@proton/pass/constants';
 import { useDesktopUnlock } from '@proton/pass/hooks/auth/useDesktopUnlock';
 import { useFeatureFlag } from '@proton/pass/hooks/useFeatureFlag';
 import { useActionRequest } from '@proton/pass/hooks/useRequest';
@@ -70,7 +70,7 @@ interface LockSetup {
 }
 
 export const useLockSetup = (): LockSetup => {
-    const { getBiometricsKey, supportsBiometrics } = usePassCore();
+    const { generateBiometricsKey, getBiometricsKey, supportsBiometrics } = usePassCore();
     const { createNotification } = useNotifications();
 
     const confirmPin = usePinUnlock();
@@ -115,7 +115,10 @@ export const useLockSetup = (): LockSetup => {
             });
         }
 
-        const ttl = orgLockTTL || (lockTTL ?? DEFAULT_LOCK_TTL);
+        const ttl =
+            mode === LockMode.SESSION && lockTTL === BROWSER_SESSION_LOCK_TTL
+                ? DEFAULT_LOCK_TTL
+                : orgLockTTL || (lockTTL ?? DEFAULT_LOCK_TTL);
 
         /** 1. Verify the current lock and collect the typed `UnlockDTO`.
          * Forwarded to the creation request to delete the existing lock. */
@@ -239,9 +242,20 @@ export const useLockSetup = (): LockSetup => {
                 });
 
             case LockMode.BIOMETRICS: {
+                const getExtensionBiometricsKey = async () => {
+                    if (!EXTENSION_BUILD || !['chrome', 'safari'].includes(BUILD_TARGET)) return undefined;
+                    const key = await generateBiometricsKey?.();
+                    return typeof key === 'string' ? key : undefined;
+                };
+
                 /** Password lock was just unlocked in step 1, reuse that password. */
                 if (current.mode === LockMode.PASSWORD) {
-                    return createLock.dispatch({ mode, password: current.password, ttl });
+                    return createLock.dispatch({
+                        mode,
+                        password: current.password,
+                        ttl,
+                        key: await getExtensionBiometricsKey(),
+                    });
                 }
 
                 /** Otherwise prompt for the password. Forward the PIN if the
@@ -252,7 +266,14 @@ export const useLockSetup = (): LockSetup => {
                         data: { pin: current.mode === LockMode.SESSION ? current.pin : undefined, ttl },
                         fork: { promptBypass: 'none', promptType: 'offline' },
                     },
-                    onSubmit: (password) => createLock.dispatch({ current, mode, password, ttl }),
+                    onSubmit: async (password) =>
+                        createLock.dispatch({
+                            current,
+                            mode,
+                            password,
+                            ttl,
+                            key: await getExtensionBiometricsKey(),
+                        }),
                     message: passwordTypeSwitch({
                         extra: c('Info').t`Please confirm your extra password in order to auto-lock with biometrics.`,
                         sso: c('Info').t`Please confirm your backup password in order to auto-lock with biometrics.`,
@@ -338,7 +359,7 @@ export const useLockSetup = (): LockSetup => {
             loading: createLock.loading,
             mode: nextLock?.mode ?? currentLockMode,
             ttl: {
-                value: nextLock?.ttl || orgLockTTL || lockTTL,
+                value: nextLock?.ttl ?? orgLockTTL ?? lockTTL,
                 disabled: Boolean(currentLockMode === LockMode.NONE || orgLockTTL),
             },
         }),

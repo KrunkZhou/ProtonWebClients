@@ -27,9 +27,20 @@ import { MODEL_VERSION } from '@proton/pass/constants';
 import type { PassConfig } from '@proton/pass/hooks/usePassConfig';
 import { getRequestIDHeaders } from '@proton/pass/lib/api/fetch-controller';
 import { imageResponsetoDataURL } from '@proton/pass/lib/api/images';
+import {
+    getBiometricsSessionKey,
+    getBiometricsStorageKey,
+    inferBiometricsStorageKey,
+} from '@proton/pass/lib/auth/lock/biometrics/utils';
 import type { UnlockDTO } from '@proton/pass/lib/auth/lock/types';
-import { createAuthStore, exposeAuthStore } from '@proton/pass/lib/auth/store';
+import { type AuthStore, createAuthStore, exposeAuthStore } from '@proton/pass/lib/auth/store';
 import { createPassCoreProxy } from '@proton/pass/lib/core/core.proxy';
+import {
+    deriveKeyFromPRFCredential,
+    generateCredential,
+    getSerializedCredential,
+    isPRFSupported,
+} from '@proton/pass/lib/crypto/utils/prf';
 import { getExtensionLocalStorage } from '@proton/pass/lib/extension/storage';
 import { getWebStoreUrl } from '@proton/pass/lib/extension/utils/browser';
 import browser from '@proton/pass/lib/globals/browser';
@@ -41,6 +52,7 @@ import type { ClientEndpoint } from '@proton/pass/types/worker/runtime';
 import type { LocalStoreData } from '@proton/pass/types/worker/state';
 import { prop } from '@proton/pass/utils/fp/lens';
 import { createMemoryStore } from '@proton/pass/utils/store';
+import { stringToUint8Array } from '@proton/shared/lib/helpers/encoding';
 import noop from '@proton/utils/noop';
 
 export type ExtensionCoreProps = {
@@ -52,6 +64,7 @@ export type ExtensionCoreProps = {
 const getPassCoreProviderProps = (
     endpoint: ClientEndpoint,
     config: PassConfig,
+    authStore: AuthStore,
     theme?: PassThemeOption
 ): PassCoreProviderProps => {
     const messageFactory = resolveMessageFactory(endpoint);
@@ -100,6 +113,30 @@ const getPassCoreProviderProps = (
             sendMessage.on(messageFactory({ type: WorkerMessageType.OTP_CODE_GENERATE, payload }), (response) =>
                 response.type === 'success' ? response : null
             ),
+
+        supportsBiometrics: isPRFSupported,
+
+        getBiometricsKey: async (store) => {
+            const { storageKey } = inferBiometricsStorageKey(store);
+            const encodedId = localStorage.getItem(storageKey) ?? '';
+            const credentialId = Uint8Array.fromBase64(encodedId, { alphabet: 'base64url' });
+            const key = await getSerializedCredential(credentialId);
+
+            return stringToUint8Array(key).toBase64();
+        },
+
+        generateBiometricsKey: async () => {
+            const credential = await generateCredential(authStore);
+            const key = await deriveKeyFromPRFCredential(credential, true);
+            const localID = authStore.getLocalID()!;
+            const storageKey = getBiometricsStorageKey(localID);
+            const encodedKey = stringToUint8Array(key).toBase64();
+
+            localStorage.setItem(storageKey, credential.id);
+            await browser.storage.session.set({ [getBiometricsSessionKey(localID)]: encodedKey }).catch(noop);
+
+            return encodedKey;
+        },
 
         getDomainImage: async (domain, signal) => {
             const basePath = BUILD_TARGET === 'firefox' || BUILD_TARGET === 'safari' ? config.API_URL : API_PROXY_URL;
@@ -236,8 +273,8 @@ const getPassCoreProviderProps = (
 
 export const ExtensionCore: FC<PropsWithChildren<ExtensionCoreProps>> = ({ children, endpoint, theme, wasm }) => {
     const extensionClientState = useRef<MaybeNull<ExtensionClientState>>(null);
-    const coreProps = useInstance(() => getPassCoreProviderProps(endpoint, config, theme));
     const authStore = useInstance(() => exposeAuthStore(createAuthStore(createMemoryStore())));
+    const coreProps = useInstance(() => getPassCoreProviderProps(endpoint, config, authStore, theme));
     const message = resolveMessageFactory(endpoint);
 
     const unlock = useCallback(

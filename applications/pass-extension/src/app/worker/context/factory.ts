@@ -34,6 +34,8 @@ import { WorkerMessageType } from 'proton-pass-extension/types/messages';
 import { API_CONCURRENCY_TRESHOLD } from '@proton/pass/constants';
 import { exposeApi } from '@proton/pass/lib/api/api';
 import { createApi } from '@proton/pass/lib/api/factory';
+import { biometricsLockAdapterFactory } from '@proton/pass/lib/auth/lock/biometrics/adapter';
+import { getBiometricsSessionKey } from '@proton/pass/lib/auth/lock/biometrics/utils';
 import { desktopLockAdapterFactory } from '@proton/pass/lib/auth/lock/desktop/adapter';
 import { passwordLockAdapterFactory } from '@proton/pass/lib/auth/lock/password/adapter';
 import { sessionLockAdapterFactory } from '@proton/pass/lib/auth/lock/session/adapter';
@@ -65,6 +67,21 @@ export const createWorkerContext = (config: ProtonConfig) => {
 
     if (ENV === 'development') QA_SERVICE?.init(storage.local);
     auth.registerLockAdapter(sessionLockAdapterFactory(auth));
+    auth.registerLockAdapter(
+        biometricsLockAdapterFactory(auth, {
+            generateBiometricsKey: async () => {
+                const localID = authStore.getLocalID();
+                if (localID === undefined) throw new Error('Missing browser biometric key');
+
+                const key = getBiometricsSessionKey(localID);
+                const value = await storage.session.getItem(key as any);
+                await storage.session.removeItem(key as any);
+
+                if (!value) throw new Error('Missing browser biometric key');
+                return value;
+            },
+        } as any)
+    );
     auth.registerLockAdapter(desktopLockAdapterFactory(auth, nativeMessaging));
     auth.registerLockAdapter(passwordLockAdapterFactory(auth));
 
