@@ -8,6 +8,14 @@ This is a Modified Proton Pass web extension with add-on features
 - Domain wildcard support (1.36.1.4)
   - Ex. `https://*.google.com:*` will allow `maps.google.com:8123`
 
+## Disclaimer
+
+This project has been modified for personal use and is provided as-is, without any warranty of any kind. Use it at your own risk.
+
+The author is not responsible for any data loss, account issues, security incidents, or other damages that may result from using this extension.
+
+Do not provide your main Proton password, recovery codes, or other sensitive credentials to any third-party extensions, apps, or services that you do not fully trust. For better security, use a separate account or limited-access credentials whenever possible.
+
 ## Getting Started
 
 ### Prerequisites
